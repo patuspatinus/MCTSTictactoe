@@ -1,14 +1,19 @@
 import numpy as np
 from collections import defaultdict
-from tictactoe import *
 
-class MonteCarloTreeSearchNode(object):
+class TicTacToeGameState:
+    # Implement the TicTacToeGameState class with necessary methods and functionalities
+    pass
+
+
+class MonteCarloTreeSearchNode:
     def __init__(self, state: TicTacToeGameState, parent=None):
-        self._number_of_visits = 0.
-        self._results = defaultdict(int)
+        self._number_of_visits = 0
+        self._results = np.zeros(3)  # Index 0: draws, Index 1: player 1 wins, Index 2: player 2 wins
         self.state = state
         self.parent = parent
         self.children = []
+        self.transposition_table = {}
 
     @property
     def untried_actions(self):
@@ -37,16 +42,31 @@ class MonteCarloTreeSearchNode(object):
         return self.state.is_game_over()
 
     def rollout(self):
+        if self.state.hash() in self.transposition_table:
+            return self.transposition_table[self.state.hash()]
+
         current_rollout_state = self.state
         while not current_rollout_state.is_game_over():
             possible_moves = current_rollout_state.get_legal_actions()
             action = self.rollout_policy(possible_moves)
             current_rollout_state = current_rollout_state.move(action)
-        return current_rollout_state.game_result
+
+        result = current_rollout_state.game_result
+        self.transposition_table[self.state.hash()] = result
+        return result
 
     def backpropagate(self, result):
-        self._number_of_visits += 1.
-        self._results[result] += 1.
+        self._number_of_visits += 1
+        if result is None:
+            # Draw
+            self._results[0] += 1
+        else:
+            # Player 1 wins
+            if result == 1:
+                self._results[1] += 1
+            # Player 2 wins
+            elif result == -1:
+                self._results[2] += 1
         if self.parent:
             self.parent.backpropagate(result)
 

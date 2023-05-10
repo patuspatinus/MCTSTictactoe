@@ -1,7 +1,7 @@
 import numpy as np
 from nodes import *
 from search import MonteCarloTreeSearch
-from tictactoe import TicTacToeGameState
+from tictactoe import *
 
 
 def init():
@@ -9,7 +9,7 @@ def init():
     initial_board_state = TicTacToeGameState(state=state, next_to_move=1)
     root = MonteCarloTreeSearchNode(state=initial_board_state, parent=None)
     mcts = MonteCarloTreeSearch(root)
-    best_node = mcts.best_action(1000)
+    best_node = mcts.best_action(initial_board_state,10000)
     c_state = best_node.state
     c_board = c_state.board
     # move = get_action(initial_board_state)
@@ -34,21 +34,19 @@ def graphics(board):
 
 
 def get_action(state):
-    try:
-        location = input("Your move: ")
-        if isinstance(location, str):
-            location = [int(n, 10) for n in location.split(",")]
-        if len(location) != 2:
-            return -1
-        x = location[0]
-        y = location[1]
-        move = TicTacToeMove(x, y, -1)
-    except Exception as e:
-        move = -1
-    if move == -1 or not state.is_move_legal(move):
-        print("invalid move")
-        move = get_action(state)
-    return move
+    while True:
+        try:
+            location = input("Your move (format: row,column): ")
+            row, column = map(int, location.split(","))
+            move = TicTacToeMove(row, column, -1)
+            if state.is_move_legal(move):
+                return move
+            else:
+                print("Invalid move. Please try again.")
+        except ValueError:
+            print("Invalid input. Please enter the move in the correct format (row,column).")
+        except Exception as e:
+            print("An error occurred:", str(e))
 
 def judge(state):
     if state.is_game_over():
@@ -76,7 +74,7 @@ while True:
     board_state = TicTacToeGameState(state=c_board, next_to_move=1)
     root = MonteCarloTreeSearchNode(state=board_state, parent=None)
     mcts = MonteCarloTreeSearch(root)
-    best_node = mcts.best_action(1000)
+    best_node = mcts.best_action(board_state,10000)
     c_state = best_node.state
     c_board = c_state.board
     graphics(c_board)

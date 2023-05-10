@@ -22,6 +22,12 @@ class TicTacToeGameState(object):
         self.board_size = state.shape[0]
         self.next_to_move = next_to_move
 
+    def clone(self):
+        new_state = TicTacToeGameState(np.zeros((self.board_size, self.board_size)))
+        new_state.board = self.board.copy()
+        new_state.next_to_move = self.next_to_move
+        return new_state
+
     @property
     def game_result(self):
         rows = self.board_size
@@ -57,59 +63,6 @@ class TicTacToeGameState(object):
 
         # No winner or draw
         return None
-
-        # wining_position = [[0,1,2,3,4],[1,2,3,4,5],[2,3,4,5,6],[3,4,5,6,7],[4,5,6,7,8],[5,6,7,8,9]]
-        # #checkrow
-        # for pst in range (self.board_size):
-        #     for pst1 in range(6):
-        #         if (str(self.board[pst][wining_position[pst1][0]]) + str(self.board[pst][wining_position[pst1][1]])
-        #                 + str(self.board[pst][wining_position[pst1][2]]) + str(self.board[pst][wining_position[pst1][3]])
-        #                 + str(self.board[pst][wining_position[pst1][4]]) == "11111"):
-        #             return 1.
-        # for pst in range(self.board_size):
-        #     for pst1 in range(6):
-        #         if (str(self.board[pst][wining_position[pst1][0]]) + str(self.board[pst][wining_position[pst1][1]])
-        #                 + str(self.board[pst][wining_position[pst1][2]]) + str(self.board[pst][wining_position[pst1][3]])
-        #                 + str(self.board[pst][wining_position[pst1][4]]) == "-1-1-1-1-1"):
-        #             return -1.
-        # #checkcolumn
-        # for pst in range(self.board_size):
-        #     for pst1 in range(6):
-        #         if (str(self.board[wining_position[pst1][0]][pst]) + str(self.board[wining_position[pst1][1]][pst])
-        #                 + str(self.board[wining_position[pst1][2]][pst]) + str(self.board[wining_position[pst1][3]][pst])
-        #                 + str(self.board[wining_position[pst1][4]][pst]) == "11111"):
-        #             return 1.
-        # for pst in range (self.board_size):
-        #     for pst1 in range(6):
-        #         if (str(self.board[wining_position[pst1][0]][pst]) + str(self.board[wining_position[pst1][1]][pst])
-        #                 + str(self.board[wining_position[pst1][2]][pst]) + str(self.board[wining_position[pst1][3]][pst])
-        #                 + str(self.board[wining_position[pst1][4]][pst]) == "-1-1-1-1-1"):
-        #             return -1.
-        #checkdiagonal
-        # #lefttoright
-        # for i in range(6):
-        #     for j in range(6-i):
-        #         if (str(self.board[j][i+j]) + str(self.board[j+1][i+j+1]) + str(self.board[j+2][i+j+2]) + str(self.board[j+3][i+j+3]) + str(self.board[j+4][i+j+4]) == "11111") or \
-        #                 (str(self.board[i+j][j]) + str(self.board[i+j+1][j+1]) + str(self.board[i+j+2][j+2]) + str(self.board[i+j+3][j+3]) + str(self.board[i+j+4][j+4]) == "11111"):
-        #             return 1.
-        # for i in range(6):
-        #     for j in range(6 - i):
-        #         if (str(self.board[j][i + j]) + str(self.board[j + 1][i + j + 1]) + str(self.board[j + 2][i + j + 2]) + str(self.board[j + 3][i + j + 3]) + str(self.board[j + 4][i + j + 4]) == "-1-1-1-1-1") or \
-        #                 (str(self.board[i + j][j]) + str(self.board[i + j + 1][j + 1]) + str(self.board[i + j + 2][j + 2]) + str(self.board[i + j + 3][j + 3]) + str(self.board[i + j + 4][j + 4]) == "-1-1-1-1-1"):
-        #             return -1.
-        # #righttoleft
-        # for i in range(6):
-        #     for j in range(6 - i):
-        #         if (str(self.board[j][self.board_size-1-i-j]) + str(self.board[j+1][self.board_size-1-i-(j+1)]) + str(self.board[j+2][self.board_size-1-i-(j+2)]) + str(self.board[j+3][self.board_size-1-i-(j+3)]) + str(self.board[j+4][self.board_size-1-i-(j+4)]) == "11111") or \
-        #                 (str(self.board[self.board_size-1-i-j][j]) + str(self.board[self.board_size-1-i-(j+1)][j+1]) + str(self.board[self.board_size-1-i-(j+2)][j+2]) + str(self.board[self.board_size-1-i-(j+3)][j+3]) + str(self.board[self.board_size-1-i-(j+4)][j+4]) == "11111"):
-        #             return 1.
-        # for i in range(6):
-        #     for j in range(6 - i):
-        #         if (str(self.board[j][self.board_size-1-i-j]) + str(self.board[j+1][self.board_size-1-i-(j+1)]) + str(self.board[j+2][self.board_size-1-i-(j+2)]) + str(self.board[j+3][self.board_size-1-i-(j+3)]) + str(self.board[j+4][self.board_size-1-i-(j+4)]) == "-1-1-1-1-1") or \
-        #                 (str(self.board[self.board_size-1-i-j][j]) + str(self.board[self.board_size-1-i-(j+1)][j+1]) + str(self.board[self.board_size-1-i-(j+2)][j+2]) + str(self.board[self.board_size-1-i-(j+3)][j+3]) + str(self.board[self.board_size-1-i-(j+4)][j+4]) == "-1-1-1-1-1"):
-        #             return -1.
-        # return None
-
 
         # check if game is over
         # rowsum = np.sum(self.board, 0)
@@ -164,3 +117,6 @@ class TicTacToeGameState(object):
     def get_legal_actions(self):
         indices = np.where(self.board == 0)
         return [TicTacToeMove(coords[0], coords[1], self.next_to_move) for coords in list(zip(indices[0], indices[1]))]
+
+    def hash(self):
+        return tuple(map(tuple, self.board))
