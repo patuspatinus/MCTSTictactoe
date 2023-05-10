@@ -24,6 +24,40 @@ class TicTacToeGameState(object):
 
     @property
     def game_result(self):
+        rows = self.board_size
+        cols = self.board_size
+
+        # Check rows
+        for row in range(rows):
+            for col in range(cols - 4):
+                if self.board[row][col] != 0 and all(self.board[row][col] == self.board[row][col + i] for i in range(1, 5)):
+                    return self.board[row][col]
+
+        # Check columns
+        for row in range(rows - 4):
+            for col in range(cols):
+                if self.board[row][col] != 0 and all(self.board[row][col] == self.board[row + i][col] for i in range(1, 5)):
+                    return self.board[row][col]
+
+        # Check diagonals (top left to bottom right)
+        for row in range(rows - 4):
+            for col in range(cols - 4):
+                if self.board[row][col] != 0 and all(self.board[row][col] == self.board[row + i][col + i] for i in range(1, 5)):
+                    return self.board[row][col]
+
+        # Check diagonals (top right to bottom left)
+        for row in range(rows - 4):
+            for col in range(4, cols):
+                if self.board[row][col] != 0 and all(self.board[row][col] == self.board[row + i][col - i] for i in range(1, 5)):
+                    return self.board[row][col]
+
+        # Check for a draw
+        if np.all(self.board != 0):
+            return 0
+
+        # No winner or draw
+        return None
+
         # wining_position = [[0,1,2,3,4],[1,2,3,4,5],[2,3,4,5,6],[3,4,5,6,7],[4,5,6,7,8],[5,6,7,8,9]]
         # #checkrow
         # for pst in range (self.board_size):
@@ -51,7 +85,7 @@ class TicTacToeGameState(object):
         #                 + str(self.board[wining_position[pst1][2]][pst]) + str(self.board[wining_position[pst1][3]][pst])
         #                 + str(self.board[wining_position[pst1][4]][pst]) == "-1-1-1-1-1"):
         #             return -1.
-        # #checkdiagonal
+        #checkdiagonal
         # #lefttoright
         # for i in range(6):
         #     for j in range(6-i):
@@ -75,24 +109,26 @@ class TicTacToeGameState(object):
         #                 (str(self.board[self.board_size-1-i-j][j]) + str(self.board[self.board_size-1-i-(j+1)][j+1]) + str(self.board[self.board_size-1-i-(j+2)][j+2]) + str(self.board[self.board_size-1-i-(j+3)][j+3]) + str(self.board[self.board_size-1-i-(j+4)][j+4]) == "-1-1-1-1-1"):
         #             return -1.
         # return None
+
+
         # check if game is over
-        rowsum = np.sum(self.board, 0)
-        colsum = np.sum(self.board, 1)
-        diag_sum_tl = self.board.trace()
-        diag_sum_tr = self.board[::-1].trace()
-
-        if any(rowsum == self.board_size) or any(
-                        colsum == self.board_size) or diag_sum_tl == self.board_size or diag_sum_tr == self.board_size:
-            return 1.
-        elif any(rowsum == -self.board_size) or any(
-                        colsum == -self.board_size) or diag_sum_tl == -self.board_size or diag_sum_tr == -self.board_size:
-
-            return -1.
-        elif np.all(self.board != 0):
-            return 0.
-        else:
-            # if not over - no result
-            return None
+        # rowsum = np.sum(self.board, 0)
+        # colsum = np.sum(self.board, 1)
+        # diag_sum_tl = self.board.trace()
+        # diag_sum_tr = self.board[::-1].trace()
+        #
+        # if any(rowsum == self.board_size) or any(
+        #                 colsum == self.board_size) or diag_sum_tl == self.board_size or diag_sum_tr == self.board_size:
+        #     return 1.
+        # elif any(rowsum == -self.board_size) or any(
+        #                 colsum == -self.board_size) or diag_sum_tl == -self.board_size or diag_sum_tr == -self.board_size:
+        #
+        #     return -1.
+        # elif np.all(self.board != 0):
+        #     return 0.
+        # else:
+        #     # if not over - no result
+        #     return None
 
 
 
