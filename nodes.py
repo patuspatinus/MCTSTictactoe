@@ -138,4 +138,19 @@ class MonteCarloTreeSearchNode:
             next_state = self.state.move(try_move)
             if next_state.is_game_over() and next_state.game_result == self.state.next_to_move:
                 return move
+
+        # Heuristic improvement: Tends to play near together
+        neighbor_weights = defaultdict(int)
+        for move in possible_moves:
+            x, y = move.x_coordinate, move.y_coordinate
+            neighbors = [(x-1, y), (x+1, y), (x, y-1), (x, y+1), (x-1, y-1), (x-1, y+1), (x+1, y-1), (x+1, y+1)]
+            for neighbor in neighbors:
+                if neighbor in self.state.occupied_positions:
+                    neighbor_weights[move] += 1
+
+        if neighbor_weights:
+            max_weight = max(neighbor_weights.values())
+            best_moves = [move for move, weight in neighbor_weights.items() if weight == max_weight]
+            return best_moves[np.random.randint(len(best_moves))]
+
         return possible_moves[np.random.randint(len(possible_moves))]

@@ -21,11 +21,13 @@ class TicTacToeGameState(object):
         self.board = state
         self.board_size = state.shape[0]
         self.next_to_move = next_to_move
+        self.occupied_positions = self.get_occupied_positions()
 
     def clone(self):
         new_state = TicTacToeGameState(np.zeros((self.board_size, self.board_size)))
         new_state.board = self.board.copy()
         new_state.next_to_move = self.next_to_move
+        new_state.occupied_positions = self.occupied_positions.copy()
         return new_state
 
     @property
@@ -108,11 +110,17 @@ class TicTacToeGameState(object):
 
     def move(self, move):
         if not self.is_move_legal(move):
-            raise ValueError("move " + move + " on board " + self.board + " is not legal")
+            raise ValueError(f"Move {move} on board {self.board} is not legal.")
         new_board = np.copy(self.board)
         new_board[move.x_coordinate, move.y_coordinate] = move.value
         next_to_move = TicTacToeGameState.o if self.next_to_move == TicTacToeGameState.x else TicTacToeGameState.x
-        return TicTacToeGameState(new_board, next_to_move)
+        new_state = TicTacToeGameState(new_board, next_to_move)
+        new_state.occupied_positions = self.occupied_positions.copy()
+        new_state.occupied_positions.add((move.x_coordinate, move.y_coordinate))
+        return new_state
+
+    def get_occupied_positions(self):
+        return {(x, y) for x in range(self.board_size) for y in range(self.board_size) if self.board[x, y] != 0}
 
     def get_legal_actions(self):
         indices = np.where(self.board == 0)
