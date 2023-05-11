@@ -75,6 +75,11 @@ while True:
     root = MonteCarloTreeSearchNode(state=board_state, parent=None)
     mcts = MonteCarloTreeSearch(root)
     best_node = mcts.best_action(board_state,1000)
+    best_move = best_node.state.last_move
+
+    x_coordinate = best_move.x_coordinate
+    y_coordinate = best_move.y_coordinate
+    print(x_coordinate,y_coordinate)
     c_state = best_node.state
     c_board = c_state.board
     graphics(c_board)

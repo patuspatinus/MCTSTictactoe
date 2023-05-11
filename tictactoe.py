@@ -15,13 +15,14 @@ class TicTacToeGameState(object):
     x = 1
     o = -1
 
-    def __init__(self, state, next_to_move=1):
+    def __init__(self, state, next_to_move=1, last_move = None):
         if len(state.shape) != 2 or state.shape[0] != state.shape[1]:
             raise ValueError("Please play on 2D square board")
         self.board = state
         self.board_size = state.shape[0]
         self.next_to_move = next_to_move
         self.occupied_positions = self.get_occupied_positions()
+        self.last_move = last_move
 
     def clone(self):
         new_state = TicTacToeGameState(np.zeros((self.board_size, self.board_size)))
@@ -117,6 +118,7 @@ class TicTacToeGameState(object):
         new_state = TicTacToeGameState(new_board, next_to_move)
         new_state.occupied_positions = self.occupied_positions.copy()
         new_state.occupied_positions.add((move.x_coordinate, move.y_coordinate))
+        new_state.last_move = move
         return new_state
 
     def get_occupied_positions(self):
