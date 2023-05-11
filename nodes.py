@@ -1,4 +1,5 @@
 import numpy as np
+from tictactoe import *
 from collections import defaultdict
 
 class TicTacToeGameState:
@@ -32,14 +33,65 @@ class MonteCarloTreeSearchNode:
         return self._number_of_visits
 
     def expand(self):
-        action = self.untried_actions.pop()
+        if len(self.untried_actions) == 0:
+            return None  # No more untried actions
+        # action = self.untried_actions.pop()
+        action = self.select_action_heuristic()
         next_state = self.state.move(action)
         child_node = MonteCarloTreeSearchNode(next_state, parent=self)
         self.children.append(child_node)
         return child_node
 
+    def select_action_heuristic(self):
+        # Prioritize moves in the center of the board
+        center_actions = [action for action in self.untried_actions if action.x_coordinate == 2 and action.y_coordinate == 2]
+        if center_actions:
+            return center_actions[0]
+        # If no center moves, choose a random untried action
+        return self.untried_actions.pop()
+
+    # def select_action(self):
+    #     best_action = None
+    #     best_value = float('-inf')
+    #     for action in self.untried_actions:
+    #         next_state = self.state.move(action)
+    #         value = self.alpha_beta(next_state, float('-inf'), float('inf'), 3)  # Adjust the depth as needed
+    #         if value > best_value:
+    #             best_value = value
+    #             best_action = action
+    #     return best_action
+    #
+    # def alpha_beta(self, state, alpha, beta, depth):
+    #     key = state.hash()  # Generate a unique key for the state
+    #     if key in self.transposition_table:  # Check if state has already been evaluated
+    #         return self.transposition_table[key]
+    #
+    #     if self.parent is None or state.next_to_move == 1:
+    #         value = float('-inf')
+    #         for action in state.get_legal_actions():
+    #             next_state = state.move(action)
+    #             value = max(value, self.alpha_beta(next_state, alpha, beta, depth - 1))
+    #             alpha = max(alpha, value)
+    #             if alpha >= beta:
+    #                 break
+    #         self.transposition_table[key] = value  # Cache the evaluated state
+    #         return value
+    #     else:
+    #         value = float('inf')
+    #         for action in state.get_legal_actions():
+    #             next_state = state.move(action)
+    #             value = min(value, self.alpha_beta(next_state, alpha, beta, depth - 1))
+    #             beta = min(beta, value)
+    #             if alpha >= beta:
+    #                 break
+    #         self.transposition_table[key] = value  # Cache the evaluated state
+    #         return value
+
     def is_terminal_node(self):
-        return self.state.is_game_over()
+        def is_terminal_node(self):
+            if self.parent is None:
+                return False  # Root node is not a terminal node
+            return self.state.is_game_over()
 
     def rollout(self):
         if self.state.hash() in self.transposition_table:
@@ -75,10 +127,15 @@ class MonteCarloTreeSearchNode:
 
     def best_child(self, c_param=1.4):
         choices_weights = [
-            (c.q / (c.n)) + c_param * 50 * np.sqrt((np.log(self.n) / (c.n)))
+            (c.q / (c.n)) + c_param * np.sqrt((2 * np.log(self.n) / (c.n)))
             for c in self.children
         ]
         return self.children[np.argmax(choices_weights)]
 
     def rollout_policy(self, possible_moves):
+        for move in possible_moves:
+            try_move = TicTacToeMove(move.x_coordinate, move.y_coordinate, self.state.next_to_move)
+            next_state = self.state.move(try_move)
+            if next_state.is_game_over() and next_state.game_result == self.state.next_to_move:
+                return move
         return possible_moves[np.random.randint(len(possible_moves))]
