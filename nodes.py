@@ -1,6 +1,9 @@
 import numpy as np
 from tictactoe import *
 from collections import defaultdict
+import copy
+
+check_occupied_position = list(zip())
 
 class TicTacToeGameState:
     # Implement the TicTacToeGameState class with necessary methods and functionalities
@@ -44,48 +47,224 @@ class MonteCarloTreeSearchNode:
 
     def select_action_heuristic(self):
         # Prioritize moves in the center of the board
-        center_actions = [action for action in self.untried_actions if action.x_coordinate == 2 and action.y_coordinate == 2]
+        center_actions = [action for action in self.untried_actions if
+                          action.x_coordinate == 4 and action.y_coordinate == 4]
         if center_actions:
             return center_actions[0]
-        # If no center moves, choose a random untried action
-        return self.untried_actions.pop()
 
-    # def select_action(self):
-    #     best_action = None
-    #     best_value = float('-inf')
-    #     for action in self.untried_actions:
-    #         next_state = self.state.move(action)
-    #         value = self.alpha_beta(next_state, float('-inf'), float('inf'), 3)  # Adjust the depth as needed
-    #         if value > best_value:
-    #             best_value = value
-    #             best_action = action
-    #     return best_action
-    #
-    # def alpha_beta(self, state, alpha, beta, depth):
-    #     key = state.hash()  # Generate a unique key for the state
-    #     if key in self.transposition_table:  # Check if state has already been evaluated
-    #         return self.transposition_table[key]
-    #
-    #     if self.parent is None or state.next_to_move == 1:
-    #         value = float('-inf')
-    #         for action in state.get_legal_actions():
-    #             next_state = state.move(action)
-    #             value = max(value, self.alpha_beta(next_state, alpha, beta, depth - 1))
-    #             alpha = max(alpha, value)
-    #             if alpha >= beta:
-    #                 break
-    #         self.transposition_table[key] = value  # Cache the evaluated state
-    #         return value
-    #     else:
-    #         value = float('inf')
-    #         for action in state.get_legal_actions():
-    #             next_state = state.move(action)
-    #             value = min(value, self.alpha_beta(next_state, alpha, beta, depth - 1))
-    #             beta = min(beta, value)
-    #             if alpha >= beta:
-    #                 break
-    #         self.transposition_table[key] = value  # Cache the evaluated state
-    #         return value
+        for move in self.untried_actions:
+            try_move = TicTacToeMove(move.x_coordinate, move.y_coordinate, self.state.next_to_move)
+            next_state = self.state.move(try_move)
+            if next_state.is_game_over() and next_state.game_result == self.state.next_to_move:
+                return move
+
+
+        for move in self.untried_actions:
+            try_move = TicTacToeMove(move.x_coordinate, move.y_coordinate, self.state.next_to_move)
+            next_state = self.state.move(try_move)
+            # Check for potential winning lines horizontally
+            for row in range(self.state.board_size):
+                for col in range(self.state.board_size - 3):
+                    if all(next_state.board[row][col + i] == self.state.next_to_move for i in range(4)):
+                        if (col == 0 and next_state.board[row][col + 4] == -1):
+                            continue
+                        elif (next_state.board[row][col-1] == -1 and col + 4 > self.state.board_size):
+                            continue
+                        elif (next_state.board[row][col-1] == -1 and next_state.board[row][col + 4] == -1):
+                            continue
+                        print("x")
+                        return move
+
+            # Check for potential winning lines vertically
+            for col in range(self.state.board_size):
+                for row in range(self.state.board_size - 3):
+                    if all(next_state.board[row + i][col] == self.state.next_to_move for i in range(4)):
+                        if row == 0 and next_state.board[row + 4][col] == -1:
+                            continue
+                        elif next_state.board[row - 1][col] == -1 and row + 4 > self.state.board_size:
+                            continue
+                        elif next_state.board[row - 1][col] == -1 and next_state.board[row + 4][col] == -1:
+                            continue
+                        print("y")
+                        return move
+
+            # Check for potential winning lines diagonally (top-left to bottom-right)
+            for row in range(self.state.board_size - 3):
+                for col in range(self.state.board_size - 3):
+                    if all(next_state.board[row + i][col + i] == self.state.next_to_move for i in range(4)):
+                        if (row == 0 and col == 0 and next_state.board[row + 4][col + 4] == -1) or \
+                                (row > 0 and col > 0 and next_state.board[row - 1][col - 1] == -1 and
+                                 next_state.board[row + 4][col + 4] == -1) or \
+                                (row > 0 and col == 0 and next_state.board[row - 1][col + 4] == -1) or \
+                                (row == 0 and col > 0 and next_state.board[row + 4][col - 1] == -1):
+                            continue
+                        print("z")
+                        return move
+
+            # Check for potential winning lines diagonally (top-right to bottom-left)
+            for row in range(self.state.board_size - 3):
+                for col in range(3, self.state.board_size):
+                    if all(next_state.board[row + i][col - i] == self.state.next_to_move for i in range(4)):
+                        if (row == 0 and col == self.state.board_size - 1 and next_state.board[row + 4][
+                            col - 4] == -1) or \
+                                (row > 0 and col < self.state.board_size - 1 and next_state.board[row - 1][
+                                    col + 1] == -1 and next_state.board[row + 4][col - 4] == -1) or \
+                                (row > 0 and col == self.state.board_size - 1 and next_state.board[row - 1][
+                                    col - 4] == -1) or \
+                                (row == 0 and col < self.state.board_size - 1 and next_state.board[row + 4][
+                                    col + 1] == -1):
+                            continue
+                        print("t")
+                        return move
+
+        # for move in self.untried_actions:
+        #     try_move = TicTacToeMove(move.x_coordinate, move.y_coordinate, -1)
+        #     next_state = self.state.move(try_move)
+        #     if next_state.is_game_over() and next_state.game_result == -1:
+        #         return move
+
+        #Doublemove
+        for move in self.untried_actions:
+            try_move = TicTacToeMove(move.x_coordinate, move.y_coordinate, self.state.next_to_move)
+            next_state = self.state.move(try_move)
+            # Check for potential winning lines horizontally
+            for move in self.untried_actions:
+                try_move = TicTacToeMove(move.x_coordinate, move.y_coordinate, self.state.next_to_move)
+                next_state = self.state.move(try_move)
+
+                # Check for potential winning lines vertically
+                for row in range(self.state.board_size):
+                    count = 0
+                    for i in range(self.state.board_size):
+                        if (next_state.board[row][i] == -1):
+                            count = count + 1
+                        if (count >= 2):
+                            break
+                    if count >= 2:
+                        continue
+                    for col in range(self.state.board_size - 2):
+                        if all(next_state.board[row][col + i] == self.state.next_to_move for i in range(3)):
+                            for col_vert in (col, col + 2):
+                                # Check for potential winning lines diagonally (top-right to bottom-left)
+                                if ((all(next_state.board[row + i][col + i] == self.state.next_to_move for i in
+                                         range(-2, 1)) and col >= 2 and row >= 2) or
+                                        (all(next_state.board[row + i][col + i] == self.state.next_to_move for i in
+                                             range(-1,
+                                                   2)) and col >= 1 and col + 1 < self.state.board_size and row >= 1 and row + 1 < self.state.board_size) or
+                                        (all(next_state.board[row + i][col + i] == self.state.next_to_move for i in
+                                             range(0,
+                                                   3)) and col + 2 < self.state.board_size and row + 2 < self.state.board_size)):
+                                    print("Vertical and Diagonal (top-right to bottom-left)")
+                                    return move
+
+                                # Check for potential winning lines diagonally (top-left to bottom-right)
+                                if ((all(next_state.board[row + i][col - i] == self.state.next_to_move for i in
+                                         range(-2, 1)) and col <= self.state.board_size - 3 and row >= 2) or
+                                        (all(next_state.board[row + i][col - i] == self.state.next_to_move for i in
+                                             range(-1,
+                                                   2)) and col <= self.state.board_size - 2 and col - 1 >= 0 and row >= 1 and row + 1 < self.state.board_size) or
+                                        (all(next_state.board[row + i][col - i] == self.state.next_to_move for i in
+                                             range(0, 3)) and col - 2 >= 0 and row + 2 < self.state.board_size)):
+                                    print("Vertical and Diagonal (top-left to bottom-right)")
+                                    return move
+
+                                if ((all(next_state.board[row + i][col_vert] == self.state.next_to_move for i in
+                                         range(-2, 1)) and row >= 2) or
+                                        (all(next_state.board[row + i][col_vert] == self.state.next_to_move for i in
+                                             range(-1, 2)) and row >= 1 and row + 1 < self.state.board) or
+                                        (all(next_state.board[row + i][col_vert] == self.state.next_to_move for i in
+                                             range(0, 3)) and row + 2 < self.state.board)):
+                                    print("Vertical and Horizontal")
+                                    return move
+
+                for col in range(self.state.board_size):
+                    for i in range(self.state.board_size):
+                        if (next_state.board[i][col] == -1):
+                            count = count + 1
+                        if (count >= 2):
+                            break
+                    if count >= 2:
+                        continue
+                    for row in range(self.state.board_size - 2):
+                        if all(next_state.board[row + i][col] == self.state.next_to_move for i in range(3)):
+                            print(row, col)
+                            for row_horiz in (row, row + 2):
+                                    # Check for potential winning lines diagonally (top-left to bottom-right)
+                                if ((all(next_state.board[row_horiz + i][col + i] == self.state.next_to_move for i in
+                                        range(-2, 1)) and col >= 2 and row_horiz >= 2) or
+                                        (all(next_state.board[row_horiz + i][col + i] == self.state.next_to_move for i in
+                                            range(-1,
+                                                2)) and col >= 1 and col + 1 < self.state.board_size and row_horiz >= 1 and row_horiz + 1 < self.state.board_size) or
+                                        (all(next_state.board[row_horiz + i][col + i] == self.state.next_to_move for i in
+                                            range(0,
+                                                3)) and col + 2 < self.state.board_size and row_horiz + 2 < self.state.board_size)):
+                                    print("Ngang_cheo1")
+                                    return move
+                                    # Check for potential winning lines diagonally (top-right to bottom-left)
+                                if ((all(next_state.board[row_horiz + i][col - i] == self.state.next_to_move for i in
+                                        range(-2, 1)) and col <= self.state.board_size - 3 and row_horiz >= 2) or
+                                        (all(next_state.board[row_horiz + i][col - i] == self.state.next_to_move for i in
+                                            range(-1,
+                                                2)) and col <= self.state.board_size - 2 and col - 1 >= 0 and row_horiz >= 1 and row_horiz + 1 < self.state.board_size) or
+                                        (all(next_state.board[row_horiz + i][col - i] == self.state.next_to_move for i in
+                                            range(0, 3)) and col - 2 >= 0 and row_horiz + 2 < self.state.board_size)):
+                                    print("Ngang_cheo2")
+                                    return move
+
+                                if ((all(next_state.board[row_horiz][col + i] == self.state.next_to_move for i in
+                                        range(-2, 1)) and col >= 2) or
+                                        (all(next_state.board[row_horiz][col + i] == self.state.next_to_move for i in
+                                            range(-1, 2)) and col >= 1 and col + 1 < self.state.board_size) or
+                                        (all(next_state.board[row_horiz][col + i] == self.state.next_to_move for i in
+                                            range(0, 3)) and col + 2 < self.state.board_size)):
+                                    print("Vert_Hori")
+                                    return move
+
+
+        for (x,y) in self.state.occupied_positions:
+            if (x,y) not in check_occupied_position:
+                check_occupied_position.append((x, y))
+        print(check_occupied_position)
+        #Upper
+        for (x, y) in check_occupied_position:
+            if (self.state.board[x][y] == -1):
+                continue
+            print("Upper ", x, y)
+            near_occupied_position_actions = [action for action in self.untried_actions if
+                                              (action.x_coordinate, action.y_coordinate) in [(x-1, y),(x+1, y),(x, y-1),(x, y+1)]]
+        if near_occupied_position_actions:
+            return near_occupied_position_actions.pop(0)
+
+        # #Lower
+        # for (x, y) in reversed(check_occupied_position):
+        #     if (self.state.board[x][y] == -1):
+        #         continue
+        #     print("Lower ", x, y)
+        #     near_occupied_position_actions = [action for action in self.untried_actions if
+        #                                       (action.x_coordinate, action.y_coordinate) == (x+1, y)]
+        # if near_occupied_position_actions:
+        #     return near_occupied_position_actions.pop(0)
+        #
+        # #Left
+        # for (x, y) in check_occupied_position:
+        #     if (self.state.board[x][y] == -1):
+        #         continue
+        #     near_occupied_position_actions = [action for action in self.untried_actions if
+        #                                       (action.x_coordinate, action.y_coordinate) == (x, y-1)]
+        # if near_occupied_position_actions:
+        #     return near_occupied_position_actions.pop(0)
+        #
+        # #Right
+        # for (x, y) in check_occupied_position:
+        #     if (self.state.board[x][y] == -1):
+        #         continue
+        #     near_occupied_position_actions = [action for action in self.untried_actions if
+        #                                       (action.x_coordinate, action.y_coordinate) == (x, y+1)]
+        # if near_occupied_position_actions:
+        #     return near_occupied_position_actions.pop(0)
+        #
+        # # If no center or near center moves, choose a random untried action
+        # return self.untried_actions.pop()
 
     def is_terminal_node(self):
         def is_terminal_node(self):
@@ -127,7 +306,7 @@ class MonteCarloTreeSearchNode:
 
     def best_child(self, c_param=1.4):
         choices_weights = [
-            (c.q / (c.n)) + c_param * np.sqrt((2 * np.log(self.n) / (c.n)))
+            (c.q / (c.n)) + c_param * 50 * np.sqrt((2 * np.log(self.n) / (c.n)))
             for c in self.children
         ]
         return self.children[np.argmax(choices_weights)]
@@ -139,18 +318,10 @@ class MonteCarloTreeSearchNode:
             if next_state.is_game_over() and next_state.game_result == self.state.next_to_move:
                 return move
 
-        # Heuristic improvement: Tends to play near together
-        neighbor_weights = defaultdict(int)
         for move in possible_moves:
-            x, y = move.x_coordinate, move.y_coordinate
-            neighbors = [(x-1, y), (x+1, y), (x, y-1), (x, y+1), (x-1, y-1), (x-1, y+1), (x+1, y-1), (x+1, y+1)]
-            for neighbor in neighbors:
-                if neighbor in self.state.occupied_positions:
-                    neighbor_weights[move] += 1
-
-        if neighbor_weights:
-            max_weight = max(neighbor_weights.values())
-            best_moves = [move for move, weight in neighbor_weights.items() if weight == max_weight]
-            return best_moves[np.random.randint(len(best_moves))]
+            try_move = TicTacToeMove(move.x_coordinate, move.y_coordinate, -1)
+            next_state = self.state.move(try_move)
+            if next_state.is_game_over() and next_state.game_result == -1:
+                return move
 
         return possible_moves[np.random.randint(len(possible_moves))]

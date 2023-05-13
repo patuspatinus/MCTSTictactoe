@@ -33,58 +33,58 @@ class TicTacToeGameState(object):
 
     @property
     def game_result(self):
-        # rows = self.board_size
-        # cols = self.board_size
-        #
-        # # Check rows
-        # for row in range(rows):
-        #     for col in range(cols - 4):
-        #         if self.board[row][col] != 0 and all(self.board[row][col] == self.board[row][col + i] for i in range(1, 5)):
-        #             return self.board[row][col]
-        #
-        # # Check columns
-        # for row in range(rows - 4):
-        #     for col in range(cols):
-        #         if self.board[row][col] != 0 and all(self.board[row][col] == self.board[row + i][col] for i in range(1, 5)):
-        #             return self.board[row][col]
-        #
-        # # Check diagonals (top left to bottom right)
-        # for row in range(rows - 4):
-        #     for col in range(cols - 4):
-        #         if self.board[row][col] != 0 and all(self.board[row][col] == self.board[row + i][col + i] for i in range(1, 5)):
-        #             return self.board[row][col]
-        #
-        # # Check diagonals (top right to bottom left)
-        # for row in range(rows - 4):
-        #     for col in range(4, cols):
-        #         if self.board[row][col] != 0 and all(self.board[row][col] == self.board[row + i][col - i] for i in range(1, 5)):
-        #             return self.board[row][col]
-        #
-        # # Check for a draw
-        # if np.all(self.board != 0):
-        #     return 0
-        #
-        # # No winner or draw
-        # return None
+        rows = self.board_size
+        cols = self.board_size
 
-        # check if game is over
-        rowsum = np.sum(self.board, 0)
-        colsum = np.sum(self.board, 1)
-        diag_sum_tl = self.board.trace()
-        diag_sum_tr = self.board[::-1].trace()
+        # Check rows
+        for row in range(rows):
+            for col in range(cols - 4):
+                if self.board[row][col] != 0 and all(self.board[row][col] == self.board[row][col + i] for i in range(1, 5)):
+                    return self.board[row][col]
 
-        if any(rowsum == self.board_size) or any(
-                        colsum == self.board_size) or diag_sum_tl == self.board_size or diag_sum_tr == self.board_size:
-            return 1.
-        elif any(rowsum == -self.board_size) or any(
-                        colsum == -self.board_size) or diag_sum_tl == -self.board_size or diag_sum_tr == -self.board_size:
+        # Check columns
+        for row in range(rows - 4):
+            for col in range(cols):
+                if self.board[row][col] != 0 and all(self.board[row][col] == self.board[row + i][col] for i in range(1, 5)):
+                    return self.board[row][col]
 
-            return -1.
-        elif np.all(self.board != 0):
-            return 0.
-        else:
-            # if not over - no result
-            return None
+        # Check diagonals (top left to bottom right)
+        for row in range(rows - 4):
+            for col in range(cols - 4):
+                if self.board[row][col] != 0 and all(self.board[row][col] == self.board[row + i][col + i] for i in range(1, 5)):
+                    return self.board[row][col]
+
+        # Check diagonals (top right to bottom left)
+        for row in range(rows - 4):
+            for col in range(4, cols):
+                if self.board[row][col] != 0 and all(self.board[row][col] == self.board[row + i][col - i] for i in range(1, 5)):
+                    return self.board[row][col]
+
+        # Check for a draw
+        if np.all(self.board != 0):
+            return 0
+
+        # No winner or draw
+        return None
+
+        # # check if game is over
+        # rowsum = np.sum(self.board, 0)
+        # colsum = np.sum(self.board, 1)
+        # diag_sum_tl = self.board.trace()
+        # diag_sum_tr = self.board[::-1].trace()
+        #
+        # if any(rowsum == self.board_size) or any(
+        #                 colsum == self.board_size) or diag_sum_tl == self.board_size or diag_sum_tr == self.board_size:
+        #     return 1.
+        # elif any(rowsum == -self.board_size) or any(
+        #                 colsum == -self.board_size) or diag_sum_tl == -self.board_size or diag_sum_tr == -self.board_size:
+        #
+        #     return -1.
+        # elif np.all(self.board != 0):
+        #     return 0.
+        # else:
+        #     # if not over - no result
+        #     return None
 
 
 

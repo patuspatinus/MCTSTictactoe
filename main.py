@@ -5,11 +5,11 @@ from tictactoe import *
 
 
 def init():
-    state = np.zeros((5, 5))
+    state = np.zeros((10, 10))
     initial_board_state = TicTacToeGameState(state=state, next_to_move=1)
     root = MonteCarloTreeSearchNode(state=initial_board_state, parent=None)
     mcts = MonteCarloTreeSearch(root)
-    best_node = mcts.best_action(initial_board_state,1000)
+    best_node = mcts.best_action(initial_board_state,3)
     c_state = best_node.state
     c_board = c_state.board
     # move = get_action(initial_board_state)
@@ -19,10 +19,10 @@ def init():
 
 
 def graphics(board):
-    for i in range(5):
+    for i in range(10):
         print("")
-        print("{0:5}".format(i).center(8)+"|", end='')
-        for j in range(5):
+        print("{0:10}".format(i).center(8)+"|", end='')
+        for j in range(10):
             if c_board[i][j] == 0:
                 print('_'.center(8), end='')
             if c_board[i][j] == 1:
@@ -74,7 +74,7 @@ while True:
     board_state = TicTacToeGameState(state=c_board, next_to_move=1)
     root = MonteCarloTreeSearchNode(state=board_state, parent=None)
     mcts = MonteCarloTreeSearch(root)
-    best_node = mcts.best_action(board_state,1000)
+    best_node = mcts.best_action(board_state,3)
     best_move = best_node.state.last_move
 
     x_coordinate = best_move.x_coordinate
